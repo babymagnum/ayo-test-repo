@@ -1,0 +1,303 @@
+definitions:
+  entity.Post:
+    properties:
+      category:
+        description: '''feature'', ''bugfix'', ''maintenance'''
+        type: string
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      project:
+        $ref: '#/definitions/entity.Project'
+      project_id:
+        type: integer
+      status:
+        description: '''draft'', ''published'''
+        type: string
+      title:
+        type: string
+    type: object
+  entity.Project:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        description: User       User   `json:"user"`
+        type: string
+      slug:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+      webhook_provider:
+        type: string
+      webhook_url:
+        type: string
+    type: object
+  request.AddPostRequest:
+    properties:
+      category:
+        maxLength: 50
+        type: string
+      content:
+        type: string
+      project_id:
+        type: integer
+      status:
+        maxLength: 20
+        type: string
+      title:
+        maxLength: 255
+        type: string
+    required:
+    - content
+    - project_id
+    - title
+    type: object
+  request.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  request.RegisterRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  response.BaseResponse:
+    properties:
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+  response.LoginData:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      token:
+        type: string
+    type: object
+  response.LoginResponse:
+    properties:
+      data:
+        $ref: '#/definitions/response.LoginData'
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+  response.PaginationMetadata:
+    properties:
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total_data:
+        type: integer
+      total_page:
+        type: integer
+    type: object
+  response.PostResponse:
+    properties:
+      message:
+        type: string
+      post:
+        $ref: '#/definitions/entity.Post'
+      status:
+        type: integer
+    type: object
+  response.PostsResponse:
+    properties:
+      message:
+        type: string
+      pagination:
+        $ref: '#/definitions/response.PaginationMetadata'
+      posts:
+        items:
+          $ref: '#/definitions/entity.Post'
+        type: array
+      status:
+        type: integer
+    type: object
+info:
+  contact:
+    email: support@example.com
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is the documentation for the main e-commerce service.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: LogStream API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Perform login
+      parameters:
+      - description: Login request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+      summary: Login
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Perform register
+      parameters:
+      - description: Register request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+      summary: Register
+      tags:
+      - auth
+  /posts/:
+    get:
+      consumes:
+      - application/json
+      description: Get All Post
+      parameters:
+      - in: query
+        name: orderBy
+        type: string
+      - in: query
+        name: page
+        required: true
+        type: integer
+      - in: query
+        name: pageSize
+        required: true
+        type: integer
+      - in: query
+        name: projectId
+        type: integer
+      - in: query
+        name: searchAll
+        type: string
+      - in: query
+        name: searchField
+        type: string
+      - in: query
+        name: searchValue
+        type: string
+      - in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.PostsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Post
+      tags:
+      - post
+    post:
+      consumes:
+      - application/json
+      description: Add new Post
+      parameters:
+      - description: Add Post request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.AddPostRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.PostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Add Post
+      tags:
+      - post
+securityDefinitions:
+  ApiKeyAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
