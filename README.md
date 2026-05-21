@@ -94,8 +94,8 @@ go install github.com/air-verse/air@latest
 
 Make sure `.air.toml` matches your OS:
 
-- **Local (Windows/Mac):** `bin = "./bin/api.exe"` + `cmd = "go build -o ./bin/ ./cmd/api/"`
-- **Linux / Docker:** `bin = "./bin/api"` + `cmd = "go build -o ./bin/api ./cmd/api/"`
+- **Local (Mac/Linux):** `bin = "./bin/api"` + `cmd = "go build -o ./bin/api ./cmd/api/"`
+- **Windows:** `bin = "./bin/api.exe"` + `cmd = "go build -o ./bin/api.exe ./cmd/api/"`
 
 Run:
 
@@ -103,9 +103,14 @@ Run:
 air -c .air.toml
 ```
 
-### Swagger docs
+### API Documentation (Postman)
 
-Install swag CLI:
+Postman collection available in `docs/postman/ayo-test-api.postman_collection.json`.
+
+How to use:
+1. Open Postman → **Import** → select the file
+2. The collection is divided into 4 folders: **Auth**, **Teams**, **Players**, **Matches**g CLI:
+3. Token is auto saved after perform login
 
 ```bash
 go install github.com/swaggo/swag/cmd/swag@latest
@@ -122,6 +127,8 @@ Update docs:
    ```
 
 4. Revert the `DeletedAt` changes after generation
+
+Akses Swagger UI di `http://localhost:8081/v1/swagger/index.html`.
 
 ---
 
@@ -141,17 +148,48 @@ export $(grep -v '^#' .env | xargs) && migrate -path ./migrations -database "${D
 
 ---
 
+## API Endpoints
+
+| Method | Endpoint | Auth | Role |
+|---|---|---|---|
+| POST | `/v1/auth/register` | - | - |
+| POST | `/v1/auth/login` | - | - |
+| GET | `/v1/teams` | JWT | all |
+| GET | `/v1/teams/:id` | JWT | all |
+| POST | `/v1/teams` | JWT | admin |
+| PUT | `/v1/teams/:id` | JWT | admin |
+| DELETE | `/v1/teams/:id` | JWT | admin |
+| GET | `/v1/players/team/:teamId` | JWT | all |
+| GET | `/v1/players/:id` | JWT | all |
+| POST | `/v1/players/team/:teamId` | JWT | all |
+| PUT | `/v1/players/:id` | JWT | all |
+| DELETE | `/v1/players/:id` | JWT | all |
+| GET | `/v1/matches` | JWT | all |
+| GET | `/v1/matches/:id` | JWT | all |
+| POST | `/v1/matches` | JWT | admin |
+| PUT | `/v1/matches/:id` | JWT | admin |
+| DELETE | `/v1/matches/:id` | JWT | admin |
+| POST | `/v1/matches/:id/report` | JWT | admin |
+| GET | `/v1/matches/:id/report` | JWT | all |
+
 ## Project Structure
 
 ```
-cmd/api/           # Entry point, handlers (controllers), middleware, DTOs
+cmd/api/              # Entry point, controllers, middleware, DTOs  
+cmd/api/controller/   # Gin HTTP handlers
+cmd/api/middleware/    # Auth, logging, recovery
+cmd/api/dto/          # Request/response/entity/service_model
+  request/            # Incoming request structs
+  response/           # Outgoing response structs  
+  entity/             # GORM entity models
+  service_model/      # Business layer models
 internal/
-  config/          # (todo) App config struct
-  db/              # Database connection + auto-migration
-  interfaces/      # Interface definitions (service contracts)
-  logger/          # Zap logger setup
-  service/         # Business logic layer
-  store/           # Data access / repository layer
-  utils/           # Shared utilities
-migrations/        # SQL migration files
+  db/                 # Database connection + auto-migration
+  interfaces/         # Service contracts
+  logger/             # Zap logger setup
+  service/            # Business logic layer
+  store/              # Data access / repository layer  
+  utils/              # Shared utilities (pagination, helpers)
+migrations/           # SQL migration files  
+docs/postman/         # Postman collection
 ```
