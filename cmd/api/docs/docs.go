@@ -882,6 +882,9 @@ const docTemplate = `{
         "entity.Match": {
             "type": "object",
             "properties": {
+                "away_team": {
+                    "$ref": "#/definitions/entity.Team"
+                },
                 "away_team_id": {
                     "type": "integer"
                 },
@@ -891,6 +894,9 @@ const docTemplate = `{
                 "deleted_at": {
                     "description": "DeletedAt *gorm.DeletedAt ` + "`" + `gorm:\"index\" json:\"deleted_at\"` + "`" + `",
                     "type": "string"
+                },
+                "home_team": {
+                    "$ref": "#/definitions/entity.Team"
                 },
                 "home_team_id": {
                     "type": "integer"
@@ -935,6 +941,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "position": {
+                    "description": "penyerang, gelandang bertahan, penjaga gawang",
                     "type": "string"
                 },
                 "team_id": {
@@ -1003,13 +1010,7 @@ const docTemplate = `{
                     "maxLength": 255
                 },
                 "position": {
-                    "type": "string",
-                    "enum": [
-                        "penyerang",
-                        "gelandang",
-                        "bertahan",
-                        "penjaga_gawang"
-                    ]
+                    "type": "string"
                 },
                 "weight_kg": {
                     "type": "number"
@@ -1178,6 +1179,29 @@ const docTemplate = `{
                 }
             }
         },
+        "response.MatchData": {
+            "type": "object",
+            "properties": {
+                "away_team": {
+                    "$ref": "#/definitions/response.TeamData"
+                },
+                "home_team": {
+                    "$ref": "#/definitions/response.TeamData"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "match_date": {
+                    "type": "string"
+                },
+                "match_time": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "response.MatchGoalData": {
             "type": "object",
             "properties": {
@@ -1273,7 +1297,7 @@ const docTemplate = `{
                 "matches": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/entity.Match"
+                        "$ref": "#/definitions/response.MatchData"
                     }
                 },
                 "message": {
@@ -1335,6 +1359,20 @@ const docTemplate = `{
                 },
                 "status": {
                     "type": "integer"
+                }
+            }
+        },
+        "response.TeamData": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "logo": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },

@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/ariefzainuri96/go-logstream/cmd/api/dto/entity"
-	"github.com/ariefzainuri96/go-logstream/cmd/api/dto/request"
-	"github.com/ariefzainuri96/go-logstream/cmd/api/dto/response"
-	"github.com/ariefzainuri96/go-logstream/cmd/api/middleware"
+	"github.com/ariefzainuri96/ayo-test/cmd/api/dto/entity"
+	"github.com/ariefzainuri96/ayo-test/cmd/api/dto/request"
+	"github.com/ariefzainuri96/ayo-test/cmd/api/dto/response"
+	"github.com/ariefzainuri96/ayo-test/cmd/api/middleware"
 	"github.com/gin-gonic/gin"
 )
 

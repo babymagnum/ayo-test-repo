@@ -3,8 +3,8 @@ package interfaces
 import (
 	"context"
 
-	"github.com/ariefzainuri96/go-logstream/cmd/api/dto/entity"
-	"github.com/ariefzainuri96/go-logstream/cmd/api/dto/request"
+	"github.com/ariefzainuri96/ayo-test/cmd/api/dto/entity"
+	"github.com/ariefzainuri96/ayo-test/cmd/api/dto/request"
 )
 
 type IAuth interface {

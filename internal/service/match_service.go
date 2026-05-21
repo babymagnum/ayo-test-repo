@@ -3,11 +3,11 @@ package service
 import (
 	"context"
 
-	"github.com/ariefzainuri96/go-logstream/cmd/api/dto/entity"
-	"github.com/ariefzainuri96/go-logstream/cmd/api/dto/request"
-	"github.com/ariefzainuri96/go-logstream/cmd/api/dto/service_model"
-	"github.com/ariefzainuri96/go-logstream/internal/store"
-	"github.com/ariefzainuri96/go-logstream/internal/utils"
+	"github.com/ariefzainuri96/ayo-test/cmd/api/dto/entity"
+	"github.com/ariefzainuri96/ayo-test/cmd/api/dto/request"
+	"github.com/ariefzainuri96/ayo-test/cmd/api/dto/service_model"
+	"github.com/ariefzainuri96/ayo-test/internal/store"
+	"github.com/ariefzainuri96/ayo-test/internal/utils"
 	"go.uber.org/zap"
 )
 

@@ -1,4 +1,4 @@
-module github.com/ariefzainuri96/go-logstream
+module github.com/ariefzainuri96/ayo-test
 
 go 1.25.0
 

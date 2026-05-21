@@ -3,9 +3,9 @@ package interfaces
 import (
 	"context"
 
-	"github.com/ariefzainuri96/go-logstream/cmd/api/dto/entity"
-	"github.com/ariefzainuri96/go-logstream/cmd/api/dto/request"
-	"github.com/ariefzainuri96/go-logstream/internal/utils"
+	"github.com/ariefzainuri96/ayo-test/cmd/api/dto/entity"
+	"github.com/ariefzainuri96/ayo-test/cmd/api/dto/request"
+	"github.com/ariefzainuri96/ayo-test/internal/utils"
 )
 
 type ITeam interface {

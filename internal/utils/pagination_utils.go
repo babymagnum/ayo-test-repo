@@ -6,8 +6,8 @@ import (
 
 	"math"
 
-	"github.com/ariefzainuri96/go-logstream/cmd/api/dto/request"
-	"github.com/ariefzainuri96/go-logstream/cmd/api/dto/response"
+	"github.com/ariefzainuri96/ayo-test/cmd/api/dto/request"
+	"github.com/ariefzainuri96/ayo-test/cmd/api/dto/response"
 	"gorm.io/gorm"
 )
 

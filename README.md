@@ -14,7 +14,7 @@
 
 ```bash
 git clone <repo-url>
-cd go-logstream
+cd ayo-test
 ```
 
 ### 2. Setup PostgreSQL
@@ -26,7 +26,7 @@ Make sure PostgreSQL is running locally.
 psql --version
 
 # Create database
-createdb go-logstream
+createdb ayo-test
 ```
 
 If PostgreSQL not installed:
@@ -46,7 +46,7 @@ Edit `.env` and fill:
 
 ```env
 APP_ENV=development
-DB_ADDR=host=localhost user=postgres password=postgres dbname=go-logstream port=5432 sslmode=disable
+DB_ADDR=host=localhost user=postgres password=postgres dbname=ayo-test port=5432 sslmode=disable
 SECRET_KEY=your-secret-key
 HTTP_PORT=8081
 SHUTDOWN_TTL=30
@@ -72,7 +72,7 @@ Migrations run automatically on startup. You should see:
 
 ```
 Database connection successfully established with GORM.
-✅ Migrations applied successfully
+Migrations applied successfully
 starting http server
 ```
 

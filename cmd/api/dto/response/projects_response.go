@@ -1,6 +1,6 @@
 package response
 
-import "github.com/ariefzainuri96/go-logstream/cmd/api/dto/entity"
+import "github.com/ariefzainuri96/ayo-test/cmd/api/dto/entity"
 
 // @Model
 type ProjectsResponse struct {

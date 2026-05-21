@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ariefzainuri96/go-logstream/cmd/api/dto/entity"
-	"github.com/ariefzainuri96/go-logstream/cmd/api/dto/request"
-	db "github.com/ariefzainuri96/go-logstream/internal/db"
+	"github.com/ariefzainuri96/ayo-test/cmd/api/dto/entity"
+	"github.com/ariefzainuri96/ayo-test/cmd/api/dto/request"
+	db "github.com/ariefzainuri96/ayo-test/internal/db"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"

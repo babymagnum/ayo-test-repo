@@ -26,12 +26,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ariefzainuri96/go-logstream/cmd/api/controller"
-	"github.com/ariefzainuri96/go-logstream/cmd/api/docs"
-	"github.com/ariefzainuri96/go-logstream/internal/db"
-	"github.com/ariefzainuri96/go-logstream/internal/logger"
-	"github.com/ariefzainuri96/go-logstream/internal/service"
-	"github.com/ariefzainuri96/go-logstream/internal/store"
+	"github.com/ariefzainuri96/ayo-test/cmd/api/controller"
+	"github.com/ariefzainuri96/ayo-test/cmd/api/docs"
+	"github.com/ariefzainuri96/ayo-test/internal/db"
+	"github.com/ariefzainuri96/ayo-test/internal/logger"
+	"github.com/ariefzainuri96/ayo-test/internal/service"
+	"github.com/ariefzainuri96/ayo-test/internal/store"
 	"github.com/joho/godotenv"
 	"go.uber.org/zap"
 )

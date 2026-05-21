@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ariefzainuri96/go-logstream/cmd/api/middleware"
-	"github.com/ariefzainuri96/go-logstream/internal/service"
+	"github.com/ariefzainuri96/ayo-test/cmd/api/middleware"
+	"github.com/ariefzainuri96/ayo-test/internal/service"
 	"github.com/gin-gonic/gin"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"go.uber.org/zap"

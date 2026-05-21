@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ariefzainuri96/go-logstream/cmd/api/dto/response"
+	"github.com/ariefzainuri96/ayo-test/cmd/api/dto/response"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )

@@ -1,6 +1,8 @@
 definitions:
   entity.Match:
     properties:
+      away_team:
+        $ref: '#/definitions/entity.Team'
       away_team_id:
         type: integer
       created_at:
@@ -8,6 +10,8 @@ definitions:
       deleted_at:
         description: DeletedAt *gorm.DeletedAt `gorm:"index" json:"deleted_at"`
         type: string
+      home_team:
+        $ref: '#/definitions/entity.Team'
       home_team_id:
         type: integer
       id:
@@ -37,6 +41,7 @@ definitions:
       name:
         type: string
       position:
+        description: penyerang, gelandang bertahan, penjaga gawang
         type: string
       team_id:
         type: integer
@@ -79,11 +84,6 @@ definitions:
         maxLength: 255
         type: string
       position:
-        enum:
-        - penyerang
-        - gelandang
-        - bertahan
-        - penjaga_gawang
         type: string
       weight_kg:
         type: number
@@ -201,6 +201,21 @@ definitions:
       status:
         type: integer
     type: object
+  response.MatchData:
+    properties:
+      away_team:
+        $ref: '#/definitions/response.TeamData'
+      home_team:
+        $ref: '#/definitions/response.TeamData'
+      id:
+        type: integer
+      match_date:
+        type: string
+      match_time:
+        type: string
+      status:
+        type: string
+    type: object
   response.MatchGoalData:
     properties:
       id:
@@ -263,7 +278,7 @@ definitions:
     properties:
       matches:
         items:
-          $ref: '#/definitions/entity.Match'
+          $ref: '#/definitions/response.MatchData'
         type: array
       message:
         type: string
@@ -304,6 +319,15 @@ definitions:
         type: array
       status:
         type: integer
+    type: object
+  response.TeamData:
+    properties:
+      id:
+        type: integer
+      logo:
+        type: string
+      name:
+        type: string
     type: object
   response.TeamResponse:
     properties:

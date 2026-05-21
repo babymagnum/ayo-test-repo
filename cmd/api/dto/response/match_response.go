@@ -3,7 +3,7 @@ package response
 import (
 	"time"
 
-	"github.com/ariefzainuri96/go-logstream/cmd/api/dto/entity"
+	"github.com/ariefzainuri96/ayo-test/cmd/api/dto/entity"
 )
 
 type MatchesResponse struct {
