@@ -23,40 +23,39 @@ func (store *AuthStore) Login(ctx context.Context, body request.LoginRequest) (e
 	var user entity.User
 
 	err := store.gormDb.ExecWithTimeoutErr(ctx, func(tx *gorm.DB) error {
-		// get data by condition from user instance, which is by email
 		return tx.
 			Model(&entity.User{}).
 			Where("email = ?", body.Email).
-			// insert data to [user] address
 			First(&user).Error
 	})
 
 	if err != nil {
-		return user, "", err
+		return entity.User{}, "", err
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
 
 	if err != nil {
-		return user, "", errors.New("invalid email or password")
+		return entity.User{}, "", errors.New("invalid email or password")
 	}
 
-	token, err := generateToken(body.Email, int(user.ID))
+	token, err := generateToken(user.Email, user.Role, int(user.ID))
 
 	if err != nil {
-		return user, "", err
+		return entity.User{}, "", err
 	}
 
 	return user, token, nil
 }
 
-func generateToken(email string, id int) (string, error) {
+func generateToken(email string, role string, id int) (string, error) {
 	jwtSecret := strings.TrimSpace(os.Getenv("SECRET_KEY"))
 
 	claims := jwt.MapClaims{
 		"user_id": id,
 		"email":   email,
-		"exp":     time.Now().Add(time.Hour * 24 * 30).Unix(), // Token valid for 30 day
+		"role":    role,
+		"exp":     time.Now().Add(time.Hour * 24 * 30).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -69,10 +68,10 @@ func (store *AuthStore) Register(ctx context.Context, body request.RegisterReque
 	err := store.gormDb.ExecWithTimeoutErr(ctx, func(tx *gorm.DB) error {
 		return tx.
 			Model(&entity.User{}).
-			Select("1"). // return 1 if email exists (this is signal that row exists)
+			Select("1").
 			Where("email = ?", body.Email).
-			Limit(1).          // stop query when row found
-			Scan(&emaiExists). // the destination value is bool, and sql convert value from "1" to true
+			Limit(1).
+			Scan(&emaiExists).
 			Error
 	})
 
@@ -93,6 +92,7 @@ func (store *AuthStore) Register(ctx context.Context, body request.RegisterReque
 	user := entity.User{
 		Email:    body.Email,
 		Password: string(hashedPassword),
+		Role:     body.Role,
 	}
 
 	err = store.gormDb.ExecWithTimeoutErr(ctx, func(tx *gorm.DB) error {
@@ -104,27 +104,4 @@ func (store *AuthStore) Register(ctx context.Context, body request.RegisterReque
 	}
 
 	return user.ID, nil
-}
-
-func (store *AuthStore) ForgotPassword(ctx context.Context, body request.LoginRequest) (string, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(body.Password), bcrypt.DefaultCost)
-
-	if err != nil {
-		return "", err
-	}
-
-	result := store.gormDb.ExecWithTimeoutVal(ctx, func(tx *gorm.DB) *gorm.DB {
-		return tx.
-			Model(&entity.User{}).
-			Where("email = ?", body.Email).
-			Updates(entity.User{Password: string(hashedPassword)})
-	})
-
-	if result.Error != nil {
-		return "", err
-	} else if result.RowsAffected == 0 {
-		return "", errors.New("email not found")
-	}
-
-	return "Success forgot password", nil
 }

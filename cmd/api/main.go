@@ -1,4 +1,4 @@
-// @title           LogStream API
+// @title           Ayo Test API
 // @version         1.0
 // @description     This is the documentation for the main e-commerce service.
 // @termsOfService  http://swagger.io/terms/
@@ -32,14 +32,11 @@ import (
 	"github.com/ariefzainuri96/go-logstream/internal/logger"
 	"github.com/ariefzainuri96/go-logstream/internal/service"
 	"github.com/ariefzainuri96/go-logstream/internal/store"
-	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
 	"go.uber.org/zap"
 )
 
-// loadConfig loads config from environment (simple)
 func loadConfig() controller.Config {
-	// In real project use env parsing lib (envconfig/viper)
 	httpPort := 8080
 	ttl := 15 * time.Second
 
@@ -59,10 +56,9 @@ func loadConfig() controller.Config {
 }
 
 func main() {
-	// setup zap logger
 	logger := logger.NewLogger()
 	defer logger.Sync()
-	
+
 	if os.Getenv("APP_ENV") != "production" {
 		if err := godotenv.Load(); err != nil {
 			logger.Fatal("Error loading .env file", zap.Error(err))
@@ -78,29 +74,25 @@ func main() {
 	docs.SwaggerInfo.Host = fmt.Sprintf("%v", os.Getenv("SWAGGER_HOST"))
 	docs.SwaggerInfo.BasePath = fmt.Sprintf("%v", os.Getenv("SWAGGER_PATH"))
 
-	// get gormdb
 	gorm, errGorm := db.NewGorm(os.Getenv("DB_ADDR"), logger)
 
 	if errGorm != nil {
-		logger.Fatal("Error connecting to gorm database", zap.Error(errGorm))		
+		logger.Fatal("Error connecting to gorm database", zap.Error(errGorm))
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// WaitGroup to wait for servers to stop
 	var wg sync.WaitGroup
 
 	store := store.NewStorage(gorm, logger)
 	service := service.NewService(store, logger)
 
 	application := &controller.Application{
-		Config:    cfg,
-		Service:   service,
-		Validator: validator.New(),
+		Config:  cfg,
+		Service: service,
 	}
 
-	// run server
 	wg.Go(func() {
 		if err := application.RunServer(ctx, cfg, logger); err != nil {
 			logger.Error("http server stopped with error", zap.Error(err))
@@ -110,9 +102,6 @@ func main() {
 		}
 	})
 
-	// ---------------------------------------------------------
-	// Graceful shutdown on OS signals
-	// ---------------------------------------------------------
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 
@@ -123,14 +112,11 @@ func main() {
 		logger.Info("signal received, starting shutdown", zap.String("signal", sig.String()))
 	}
 
-	// start shutdown procedure
 	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), cfg.ShutdownTTL)
 	defer shutdownCancel()
 
-	// Let goroutines handle ctx cancellation — we call cancel to notify them
 	cancel()
 
-	// Wait for background goroutines to finish or timeout
 	doneCh := make(chan struct{})
 	go func() {
 		wg.Wait()

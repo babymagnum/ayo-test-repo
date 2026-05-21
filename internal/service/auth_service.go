@@ -22,31 +22,13 @@ func NewAuthService(store store.Storage, logger *zap.Logger) *AuthServiceImpl {
 }
 
 func (s *AuthServiceImpl) Register(ctx context.Context, req request.RegisterRequest) (uint, error) {
-	id, err := s.store.IAuth.Register(ctx, req)
-
-	if err != nil {
-		return 0, err
+	if req.Role == "" {
+		req.Role = "user"
 	}
 
-	return id, nil
+	return s.store.IAuth.Register(ctx, req)
 }
 
 func (s *AuthServiceImpl) Login(ctx context.Context, req request.LoginRequest) (entity.User, string, error) {
-	user, token, err := s.store.IAuth.Login(ctx, req)
-
-	if err != nil {
-		return entity.User{}, "", err
-	}
-
-	return user, token, nil
-}
-
-func (s *AuthServiceImpl) ForgotPassword(ctx context.Context, req request.LoginRequest) (string, error) {
-	msg, err := s.store.IAuth.ForgotPassword(ctx, req)
-
-	if err != nil {
-		return "", err
-	}
-
-	return msg, nil
+	return s.store.IAuth.Login(ctx, req)
 }

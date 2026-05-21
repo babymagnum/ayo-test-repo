@@ -9,7 +9,6 @@ import (
 	"github.com/ariefzainuri96/go-logstream/cmd/api/middleware"
 	"github.com/ariefzainuri96/go-logstream/internal/service"
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"go.uber.org/zap"
 )
@@ -20,9 +19,8 @@ type Config struct {
 }
 
 type Application struct {
-	Config    Config
-	Service   service.Service
-	Validator *validator.Validate
+	Config  Config
+	Service service.Service
 }
 
 func (app *Application) RunServer(ctx context.Context, cfg Config, logger *zap.Logger) error {
@@ -38,9 +36,40 @@ func (app *Application) RunServer(ctx context.Context, cfg Config, logger *zap.L
 			auth.POST("/login", app.login)
 			auth.POST("/register", app.register)
 		}
+
+		teams := v1.Group("/teams")
+		teams.Use(middleware.Authentication())
+		{
+			teams.GET("", app.listTeams)
+			teams.GET("/:id", app.getTeam)
+			teams.POST("", app.createTeam)
+			teams.PUT("/:id", app.updateTeam)
+			teams.DELETE("/:id", app.deleteTeam)
+		}
+
+		players := v1.Group("/players")
+		players.Use(middleware.Authentication())
+		{
+			players.GET("/team/:teamId", app.listPlayersByTeam)
+			players.GET("/:id", app.getPlayer)
+			players.POST("/team/:teamId", app.createPlayer)
+			players.PUT("/:id", app.updatePlayer)
+			players.DELETE("/:id", app.deletePlayer)
+		}
+
+		matches := v1.Group("/matches")
+		matches.Use(middleware.Authentication())
+		{
+			matches.GET("", app.listMatches)
+			matches.GET("/:id", app.getMatch)
+			matches.POST("", app.scheduleMatch)
+			matches.PUT("/:id", app.updateMatch)
+			matches.DELETE("/:id", app.deleteMatch)
+			matches.POST("/:id/report", app.reportMatch)
+			matches.GET("/:id/report", app.getMatchReport)
+		}
 	}
 
-	// swagger — Gin butuh ANY wildcard
 	router.GET("/v1/swagger/*any", gin.WrapH(
 		httpSwagger.Handler(httpSwagger.URL("doc.json")),
 	))
@@ -53,7 +82,6 @@ func (app *Application) RunServer(ctx context.Context, cfg Config, logger *zap.L
 		IdleTimeout:  1 * time.Minute,
 	}
 
-	// Start server in goroutine so we can watch ctx
 	serverErrCh := make(chan error, 1)
 	go func() {
 		logger.Info("starting http server", zap.Int("port", cfg.HTTPPort))
@@ -66,7 +94,6 @@ func (app *Application) RunServer(ctx context.Context, cfg Config, logger *zap.L
 
 	select {
 	case <-ctx.Done():
-		// Shutdown with timeout
 		shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 		logger.Info("http server shutting down")

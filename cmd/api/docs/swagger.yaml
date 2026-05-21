@@ -1,64 +1,125 @@
 definitions:
-  entity.Post:
+  entity.Match:
     properties:
-      category:
-        description: '''feature'', ''bugfix'', ''maintenance'''
-        type: string
-      content:
-        type: string
+      away_team_id:
+        type: integer
       created_at:
         type: string
+      deleted_at:
+        description: DeletedAt *gorm.DeletedAt `gorm:"index" json:"deleted_at"`
+        type: string
+      home_team_id:
+        type: integer
       id:
         type: integer
-      project:
-        $ref: '#/definitions/entity.Project'
-      project_id:
-        type: integer
+      match_date:
+        type: string
+      match_time:
+        type: string
       status:
-        description: '''draft'', ''published'''
-        type: string
-      title:
-        type: string
-    type: object
-  entity.Project:
-    properties:
-      created_at:
-        type: string
-      id:
-        type: integer
-      name:
-        description: User       User   `json:"user"`
-        type: string
-      slug:
         type: string
       updated_at:
         type: string
-      user_id:
-        type: integer
-      webhook_provider:
+    type: object
+  entity.Player:
+    properties:
+      created_at:
         type: string
-      webhook_url:
+      deleted_at:
+        description: DeletedAt *gorm.DeletedAt `gorm:"index" json:"deleted_at"`
+        type: string
+      height_cm:
+        type: number
+      id:
+        type: integer
+      jersey_number:
+        type: integer
+      name:
+        type: string
+      position:
+        type: string
+      team_id:
+        type: integer
+      updated_at:
+        type: string
+      weight_kg:
+        type: number
+    type: object
+  entity.Team:
+    properties:
+      address:
+        type: string
+      city:
+        type: string
+      created_at:
+        type: string
+      deleted_at:
+        description: DeletedAt *gorm.DeletedAt `gorm:"index" json:"deleted_at"`
+        type: string
+      founded_year:
+        type: integer
+      id:
+        type: integer
+      logo_url:
+        type: string
+      name:
+        type: string
+      total_wins:
+        type: integer
+      updated_at:
         type: string
     type: object
-  request.AddPostRequest:
+  request.AddPlayerRequest:
     properties:
-      category:
-        maxLength: 50
-        type: string
-      content:
-        type: string
-      project_id:
+      height_cm:
+        type: number
+      jersey_number:
         type: integer
-      status:
-        maxLength: 20
+      name:
+        maxLength: 255
         type: string
-      title:
+      position:
+        enum:
+        - penyerang
+        - gelandang
+        - bertahan
+        - penjaga_gawang
+        type: string
+      weight_kg:
+        type: number
+    required:
+    - jersey_number
+    - name
+    - position
+    type: object
+  request.AddTeamRequest:
+    properties:
+      address:
+        type: string
+      city:
+        maxLength: 100
+        type: string
+      founded_year:
+        type: integer
+      logo_url:
+        type: string
+      name:
         maxLength: 255
         type: string
     required:
-    - content
-    - project_id
-    - title
+    - name
+    type: object
+  request.GoalRequest:
+    properties:
+      is_own_goal:
+        type: boolean
+      minute:
+        type: integer
+      player_id:
+        type: integer
+    required:
+    - minute
+    - player_id
     type: object
   request.LoginRequest:
     properties:
@@ -76,9 +137,44 @@ definitions:
         type: string
       password:
         type: string
+      role:
+        type: string
     required:
     - email
     - password
+    type: object
+  request.ReportMatchRequest:
+    properties:
+      away_score:
+        type: integer
+      goals:
+        items:
+          $ref: '#/definitions/request.GoalRequest'
+        type: array
+      home_score:
+        type: integer
+    required:
+    - away_score
+    - goals
+    - home_score
+    type: object
+  request.ScheduleMatchRequest:
+    properties:
+      away_team_id:
+        type: integer
+      home_team_id:
+        type: integer
+      match_date:
+        description: 'format: "2026-01-02"'
+        type: string
+      match_time:
+        description: 'format: "15:04:05"'
+        type: string
+    required:
+    - away_team_id
+    - home_team_id
+    - match_date
+    - match_time
     type: object
   response.BaseResponse:
     properties:
@@ -105,6 +201,77 @@ definitions:
       status:
         type: integer
     type: object
+  response.MatchGoalData:
+    properties:
+      id:
+        type: integer
+      is_own_goal:
+        type: boolean
+      minute:
+        type: integer
+      player_id:
+        type: integer
+      player_name:
+        type: string
+    type: object
+  response.MatchReportData:
+    properties:
+      away_score:
+        type: integer
+      away_team:
+        $ref: '#/definitions/entity.Team'
+      away_total_wins:
+        type: integer
+      goals:
+        items:
+          $ref: '#/definitions/response.MatchGoalData'
+        type: array
+      home_score:
+        type: integer
+      home_team:
+        $ref: '#/definitions/entity.Team'
+      home_total_wins:
+        type: integer
+      match:
+        $ref: '#/definitions/entity.Match'
+      top_scorer:
+        type: string
+      top_scorer_goal_count:
+        type: integer
+      winner:
+        type: string
+    type: object
+  response.MatchReportResponse:
+    properties:
+      data:
+        $ref: '#/definitions/response.MatchReportData'
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+  response.MatchResponse:
+    properties:
+      match:
+        $ref: '#/definitions/entity.Match'
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+  response.MatchesResponse:
+    properties:
+      matches:
+        items:
+          $ref: '#/definitions/entity.Match'
+        type: array
+      message:
+        type: string
+      pagination:
+        $ref: '#/definitions/response.PaginationMetadata'
+      status:
+        type: integer
+    type: object
   response.PaginationMetadata:
     properties:
       page:
@@ -116,27 +283,49 @@ definitions:
       total_page:
         type: integer
     type: object
-  response.PostResponse:
+  response.PlayerResponse:
     properties:
       message:
         type: string
-      post:
-        $ref: '#/definitions/entity.Post'
+      player:
+        $ref: '#/definitions/entity.Player'
       status:
         type: integer
     type: object
-  response.PostsResponse:
+  response.PlayersResponse:
     properties:
       message:
         type: string
       pagination:
         $ref: '#/definitions/response.PaginationMetadata'
-      posts:
+      players:
         items:
-          $ref: '#/definitions/entity.Post'
+          $ref: '#/definitions/entity.Player'
         type: array
       status:
         type: integer
+    type: object
+  response.TeamResponse:
+    properties:
+      message:
+        type: string
+      status:
+        type: integer
+      team:
+        $ref: '#/definitions/entity.Team'
+    type: object
+  response.TeamsResponse:
+    properties:
+      message:
+        type: string
+      pagination:
+        $ref: '#/definitions/response.PaginationMetadata'
+      status:
+        type: integer
+      teams:
+        items:
+          $ref: '#/definitions/entity.Team'
+        type: array
     type: object
 info:
   contact:
@@ -148,7 +337,7 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: http://swagger.io/terms/
-  title: LogStream API
+  title: Ayo Test API
   version: "1.0"
 paths:
   /auth/login:
@@ -211,89 +400,487 @@ paths:
       summary: Register
       tags:
       - auth
-  /posts/:
+  /matches:
     get:
       consumes:
       - application/json
-      description: Get All Post
+      description: Get all matches with pagination
       parameters:
-      - in: query
-        name: orderBy
-        type: string
-      - in: query
+      - description: Page number
+        in: query
         name: page
-        required: true
         type: integer
-      - in: query
-        name: pageSize
-        required: true
+      - description: Page size
+        in: query
+        name: page_size
         type: integer
-      - in: query
-        name: projectId
-        type: integer
-      - in: query
-        name: searchAll
-        type: string
-      - in: query
-        name: searchField
-        type: string
-      - in: query
-        name: searchValue
-        type: string
-      - in: query
-        name: sort
-        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.PostsResponse'
+            $ref: '#/definitions/response.MatchesResponse'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/response.BaseResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.BaseResponse'
       security:
       - ApiKeyAuth: []
-      summary: Get Post
+      summary: List Matches
       tags:
-      - post
+      - matches
     post:
       consumes:
       - application/json
-      description: Add new Post
+      description: Create a new match schedule (admin only)
       parameters:
-      - description: Add Post request
+      - description: Match schedule data
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/request.AddPostRequest'
+          $ref: '#/definitions/request.ScheduleMatchRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.PostResponse'
+            $ref: '#/definitions/response.MatchResponse'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/response.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Schedule Match
+      tags:
+      - matches
+  /matches/{id}:
+    delete:
+      description: Delete match by ID (admin only, soft delete)
+      parameters:
+      - description: Match ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Match
+      tags:
+      - matches
+    get:
+      description: Get match by ID
+      parameters:
+      - description: Match ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.MatchResponse'
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/response.BaseResponse'
       security:
       - ApiKeyAuth: []
-      summary: Add Post
+      summary: Get Match
       tags:
-      - post
+      - matches
+    put:
+      consumes:
+      - application/json
+      description: Update match schedule by ID (admin only)
+      parameters:
+      - description: Match ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Match schedule data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.ScheduleMatchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.MatchResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update Match
+      tags:
+      - matches
+  /matches/{id}/report:
+    get:
+      description: Get match result with goals, winner, top scorer, and team win accumulations
+      parameters:
+      - description: Match ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.MatchReportResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Match Report
+      tags:
+      - matches
+    post:
+      consumes:
+      - application/json
+      description: Submit match result with goals (admin only)
+      parameters:
+      - description: Match ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Match result data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReportMatchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Report Match Result
+      tags:
+      - matches
+  /players/{id}:
+    delete:
+      description: Delete player by ID (admin only, soft delete)
+      parameters:
+      - description: Player ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Player
+      tags:
+      - players
+    get:
+      description: Get player by ID
+      parameters:
+      - description: Player ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.PlayerResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Player
+      tags:
+      - players
+    put:
+      consumes:
+      - application/json
+      description: Update player by ID (admin only)
+      parameters:
+      - description: Player ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Player data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.AddPlayerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.PlayerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update Player
+      tags:
+      - players
+  /players/team/{teamId}:
+    get:
+      consumes:
+      - application/json
+      description: Get all players in a team with pagination
+      parameters:
+      - description: Team ID
+        in: path
+        name: teamId
+        required: true
+        type: integer
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.PlayersResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: List Players by Team
+      tags:
+      - players
+    post:
+      consumes:
+      - application/json
+      description: Add a new player to a team (admin only)
+      parameters:
+      - description: Team ID
+        in: path
+        name: teamId
+        required: true
+        type: integer
+      - description: Player data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.AddPlayerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.PlayerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create Player
+      tags:
+      - players
+  /teams:
+    get:
+      consumes:
+      - application/json
+      description: Get all teams with pagination
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.TeamsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: List Teams
+      tags:
+      - teams
+    post:
+      consumes:
+      - application/json
+      description: Add new team (admin only)
+      parameters:
+      - description: Team data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.AddTeamRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.TeamResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create Team
+      tags:
+      - teams
+  /teams/{id}:
+    delete:
+      description: Delete team by ID (admin only, soft delete)
+      parameters:
+      - description: Team ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Team
+      tags:
+      - teams
+    get:
+      description: Get team by ID
+      parameters:
+      - description: Team ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.TeamResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Team
+      tags:
+      - teams
+    put:
+      consumes:
+      - application/json
+      description: Update team by ID (admin only)
+      parameters:
+      - description: Team ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Team data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.AddTeamRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.TeamResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update Team
+      tags:
+      - teams
 securityDefinitions:
   ApiKeyAuth:
     description: Type "Bearer" followed by a space and JWT token.

@@ -116,14 +116,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/posts/": {
+        "/matches": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Get All Post",
+                "description": "Get all matches with pagination",
                 "consumes": [
                     "application/json"
                 ],
@@ -131,50 +131,20 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "post"
+                    "matches"
                 ],
-                "summary": "Get Post",
+                "summary": "List Matches",
                 "parameters": [
                     {
-                        "type": "string",
-                        "name": "orderBy",
-                        "in": "query"
-                    },
-                    {
                         "type": "integer",
+                        "description": "Page number",
                         "name": "page",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "integer",
-                        "name": "pageSize",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "name": "projectId",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "searchAll",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "searchField",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "searchValue",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "sort",
+                        "description": "Page size",
+                        "name": "page_size",
                         "in": "query"
                     }
                 ],
@@ -182,13 +152,218 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.PostsResponse"
+                            "$ref": "#/definitions/response.MatchesResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/response.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create a new match schedule (admin only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "matches"
+                ],
+                "summary": "Schedule Match",
+                "parameters": [
+                    {
+                        "description": "Match schedule data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ScheduleMatchRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.MatchResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/matches/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get match by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "matches"
+                ],
+                "summary": "Get Match",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Match ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.MatchResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update match schedule by ID (admin only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "matches"
+                ],
+                "summary": "Update Match",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Match ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Match schedule data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ScheduleMatchRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.MatchResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete match by ID (admin only, soft delete)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "matches"
+                ],
+                "summary": "Delete Match",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Match ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/matches/{id}/report": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get match result with goals, winner, top scorer, and team win accumulations",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "matches"
+                ],
+                "summary": "Get Match Report",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Match ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.MatchReportResponse"
                         }
                     },
                     "404": {
@@ -205,7 +380,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Add new Post",
+                "description": "Submit match result with goals (admin only)",
                 "consumes": [
                     "application/json"
                 ],
@@ -213,17 +388,24 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "post"
+                    "matches"
                 ],
-                "summary": "Add Post",
+                "summary": "Report Match Result",
                 "parameters": [
                     {
-                        "description": "Add Post request",
+                        "type": "integer",
+                        "description": "Match ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Match result data",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.AddPostRequest"
+                            "$ref": "#/definitions/request.ReportMatchRequest"
                         }
                     }
                 ],
@@ -231,13 +413,152 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.PostResponse"
+                            "$ref": "#/definitions/response.BaseResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/response.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/players/team/{teamId}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get all players in a team with pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "players"
+                ],
+                "summary": "List Players by Team",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.PlayersResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Add a new player to a team (admin only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "players"
+                ],
+                "summary": "Create Player",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Player data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AddPlayerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.PlayerResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/players/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get player by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "players"
+                ],
+                "summary": "Get Player",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Player ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.PlayerResponse"
                         }
                     },
                     "404": {
@@ -247,96 +568,494 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update player by ID (admin only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "players"
+                ],
+                "summary": "Update Player",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Player ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Player data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AddPlayerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.PlayerResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete player by ID (admin only, soft delete)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "players"
+                ],
+                "summary": "Delete Player",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Player ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/teams": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get all teams with pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teams"
+                ],
+                "summary": "List Teams",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.TeamsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Add new team (admin only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teams"
+                ],
+                "summary": "Create Team",
+                "parameters": [
+                    {
+                        "description": "Team data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AddTeamRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.TeamResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/teams/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get team by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teams"
+                ],
+                "summary": "Get Team",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.TeamResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update team by ID (admin only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teams"
+                ],
+                "summary": "Update Team",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Team data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AddTeamRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.TeamResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete team by ID (admin only, soft delete)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teams"
+                ],
+                "summary": "Delete Team",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse"
+                        }
+                    }
+                }
             }
         }
     },
     "definitions": {
-        "entity.Post": {
+        "entity.Match": {
             "type": "object",
             "properties": {
-                "category": {
-                    "description": "'feature', 'bugfix', 'maintenance'",
-                    "type": "string"
-                },
-                "content": {
-                    "type": "string"
+                "away_team_id": {
+                    "type": "integer"
                 },
                 "created_at": {
                     "type": "string"
                 },
+                "deleted_at": {
+                    "description": "DeletedAt *gorm.DeletedAt ` + "`" + `gorm:\"index\" json:\"deleted_at\"` + "`" + `",
+                    "type": "string"
+                },
+                "home_team_id": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "integer"
                 },
-                "project": {
-                    "$ref": "#/definitions/entity.Project"
+                "match_date": {
+                    "type": "string"
                 },
-                "project_id": {
-                    "type": "integer"
+                "match_time": {
+                    "type": "string"
                 },
                 "status": {
-                    "description": "'draft', 'published'",
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
-        "entity.Project": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "description": "User       User   ` + "`" + `json:\"user\"` + "`" + `",
-                    "type": "string"
-                },
-                "slug": {
                     "type": "string"
                 },
                 "updated_at": {
                     "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
-                },
-                "webhook_provider": {
+                }
+            }
+        },
+        "entity.Player": {
+            "type": "object",
+            "properties": {
+                "created_at": {
                     "type": "string"
                 },
-                "webhook_url": {
+                "deleted_at": {
+                    "description": "DeletedAt *gorm.DeletedAt ` + "`" + `gorm:\"index\" json:\"deleted_at\"` + "`" + `",
+                    "type": "string"
+                },
+                "height_cm": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "jersey_number": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "string"
+                },
+                "team_id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "weight_kg": {
+                    "type": "number"
+                }
+            }
+        },
+        "entity.Team": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "description": "DeletedAt *gorm.DeletedAt ` + "`" + `gorm:\"index\" json:\"deleted_at\"` + "`" + `",
+                    "type": "string"
+                },
+                "founded_year": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "logo_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "total_wins": {
+                    "type": "integer"
+                },
+                "updated_at": {
                     "type": "string"
                 }
             }
         },
-        "request.AddPostRequest": {
+        "request.AddPlayerRequest": {
             "type": "object",
             "required": [
-                "content",
-                "project_id",
-                "title"
+                "jersey_number",
+                "name",
+                "position"
             ],
             "properties": {
-                "category": {
-                    "type": "string",
-                    "maxLength": 50
+                "height_cm": {
+                    "type": "number"
                 },
-                "content": {
-                    "type": "string"
-                },
-                "project_id": {
+                "jersey_number": {
                     "type": "integer"
                 },
-                "status": {
-                    "type": "string",
-                    "maxLength": 20
-                },
-                "title": {
+                "name": {
                     "type": "string",
                     "maxLength": 255
+                },
+                "position": {
+                    "type": "string",
+                    "enum": [
+                        "penyerang",
+                        "gelandang",
+                        "bertahan",
+                        "penjaga_gawang"
+                    ]
+                },
+                "weight_kg": {
+                    "type": "number"
+                }
+            }
+        },
+        "request.AddTeamRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "founded_year": {
+                    "type": "integer"
+                },
+                "logo_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
+        "request.GoalRequest": {
+            "type": "object",
+            "required": [
+                "minute",
+                "player_id"
+            ],
+            "properties": {
+                "is_own_goal": {
+                    "type": "boolean"
+                },
+                "minute": {
+                    "type": "integer"
+                },
+                "player_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -366,6 +1085,56 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.ReportMatchRequest": {
+            "type": "object",
+            "required": [
+                "away_score",
+                "goals",
+                "home_score"
+            ],
+            "properties": {
+                "away_score": {
+                    "type": "integer"
+                },
+                "goals": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.GoalRequest"
+                    }
+                },
+                "home_score": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.ScheduleMatchRequest": {
+            "type": "object",
+            "required": [
+                "away_team_id",
+                "home_team_id",
+                "match_date",
+                "match_time"
+            ],
+            "properties": {
+                "away_team_id": {
+                    "type": "integer"
+                },
+                "home_team_id": {
+                    "type": "integer"
+                },
+                "match_date": {
+                    "description": "format: \"2026-01-02\"",
+                    "type": "string"
+                },
+                "match_time": {
+                    "description": "format: \"15:04:05\"",
                     "type": "string"
                 }
             }
@@ -409,6 +1178,115 @@ const docTemplate = `{
                 }
             }
         },
+        "response.MatchGoalData": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "is_own_goal": {
+                    "type": "boolean"
+                },
+                "minute": {
+                    "type": "integer"
+                },
+                "player_id": {
+                    "type": "integer"
+                },
+                "player_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.MatchReportData": {
+            "type": "object",
+            "properties": {
+                "away_score": {
+                    "type": "integer"
+                },
+                "away_team": {
+                    "$ref": "#/definitions/entity.Team"
+                },
+                "away_total_wins": {
+                    "type": "integer"
+                },
+                "goals": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.MatchGoalData"
+                    }
+                },
+                "home_score": {
+                    "type": "integer"
+                },
+                "home_team": {
+                    "$ref": "#/definitions/entity.Team"
+                },
+                "home_total_wins": {
+                    "type": "integer"
+                },
+                "match": {
+                    "$ref": "#/definitions/entity.Match"
+                },
+                "top_scorer": {
+                    "type": "string"
+                },
+                "top_scorer_goal_count": {
+                    "type": "integer"
+                },
+                "winner": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.MatchReportResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/response.MatchReportData"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.MatchResponse": {
+            "type": "object",
+            "properties": {
+                "match": {
+                    "$ref": "#/definitions/entity.Match"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.MatchesResponse": {
+            "type": "object",
+            "properties": {
+                "matches": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Match"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "pagination": {
+                    "$ref": "#/definitions/response.PaginationMetadata"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
         "response.PaginationMetadata": {
             "type": "object",
             "properties": {
@@ -426,21 +1304,21 @@ const docTemplate = `{
                 }
             }
         },
-        "response.PostResponse": {
+        "response.PlayerResponse": {
             "type": "object",
             "properties": {
                 "message": {
                     "type": "string"
                 },
-                "post": {
-                    "$ref": "#/definitions/entity.Post"
+                "player": {
+                    "$ref": "#/definitions/entity.Player"
                 },
                 "status": {
                     "type": "integer"
                 }
             }
         },
-        "response.PostsResponse": {
+        "response.PlayersResponse": {
             "type": "object",
             "properties": {
                 "message": {
@@ -449,14 +1327,48 @@ const docTemplate = `{
                 "pagination": {
                     "$ref": "#/definitions/response.PaginationMetadata"
                 },
-                "posts": {
+                "players": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/entity.Post"
+                        "$ref": "#/definitions/entity.Player"
                     }
                 },
                 "status": {
                     "type": "integer"
+                }
+            }
+        },
+        "response.TeamResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "team": {
+                    "$ref": "#/definitions/entity.Team"
+                }
+            }
+        },
+        "response.TeamsResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "pagination": {
+                    "$ref": "#/definitions/response.PaginationMetadata"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "teams": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Team"
+                    }
                 }
             }
         }
@@ -477,7 +1389,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "LogStream API",
+	Title:            "Ayo Test API",
 	Description:      "This is the documentation for the main e-commerce service.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ariefzainuri96/go-logstream/cmd/api/dto/response"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -23,11 +24,15 @@ const (
 	AdminNotAllowed string = "Admins are not allowed to perform this action!"
 )
 
-/*
-This Authentication middleware usage is for route
+func GetUserFromGin(c *gin.Context) (UserClaims, bool) {
+	raw, exists := c.Get(UserContextKey)
+	if !exists {
+		return UserClaims{}, false
+	}
+	user, ok := raw.(UserClaims)
+	return user, ok
+}
 
-mux.Handle("/v1/product/", middleware.Authentication(http.StripPrefix("/v1/product", app.ProductRouter())))
-*/
 func Authentication() gin.HandlerFunc {
 	jwtSecret := os.Getenv("SECRET_KEY")
 
@@ -35,9 +40,9 @@ func Authentication() gin.HandlerFunc {
 		authHeader := c.GetHeader("Authorization")
 
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"status":  http.StatusUnauthorized,
-				"message": "Missing Authorization Header",
+			c.AbortWithStatusJSON(http.StatusUnauthorized, response.BaseResponse{
+				Status:  http.StatusUnauthorized,
+				Message: PleaseReLogin,
 			})
 			return
 		}
@@ -52,91 +57,28 @@ func Authentication() gin.HandlerFunc {
 		})
 
 		if err != nil || !token.Valid {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"status":  http.StatusUnauthorized,
-				"message": "Invalid Token",
+			c.AbortWithStatusJSON(http.StatusUnauthorized, response.BaseResponse{
+				Status:  http.StatusUnauthorized,
+				Message: "Invalid Token",
 			})
 			return
 		}
 
-		// Extract claims from the token
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"status":  http.StatusUnauthorized,
-				"message": "Invalid Token Claims",
+			c.AbortWithStatusJSON(http.StatusUnauthorized, response.BaseResponse{
+				Status:  http.StatusUnauthorized,
+				Message: "Invalid Token Claims",
 			})
 			return
 		}
 
-		// Extract data from token
+		role, _ := claims["role"].(string)
 		c.Set(UserContextKey, UserClaims{
 			UserID:  uint(claims["user_id"].(float64)),
 			Email:   claims["email"].(string),
-			IsAdmin: claims["is_admin"].(bool),
+			IsAdmin: role == "admin",
 		})
-
-		c.Next()
-	}
-}
-
-/*
-This AdminHandler usage is for each endpoint
-
-authRouter.HandleFunc("POST /login", middleware.AdminHandler(app.login))
-*/
-func AdminHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		claims, ok := c.Get(UserContextKey)
-
-		if !ok {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"status":  http.StatusUnauthorized,
-				"message": PleaseReLogin,
-			})
-			return
-		}
-
-		user := claims.(UserClaims)
-
-		if !user.IsAdmin {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
-				"status":  http.StatusForbidden,
-				"message": NotAuthorized,
-			})
-			return
-		}
-
-		c.Next()
-	}
-}
-
-/*
-This UserHandler usage is for each endpoint
-
-authRouter.HandleFunc("POST /login", middleware.UserHandler(app.login))
-*/
-func UserHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		claims, ok := c.Get(UserContextKey)
-
-		if !ok {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"status":  http.StatusUnauthorized,
-				"message": PleaseReLogin,
-			})
-			return
-		}
-
-		user := claims.(UserClaims)
-
-		if user.IsAdmin {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
-				"status":  http.StatusForbidden,
-				"message": AdminNotAllowed,
-			})
-			return
-		}
 
 		c.Next()
 	}

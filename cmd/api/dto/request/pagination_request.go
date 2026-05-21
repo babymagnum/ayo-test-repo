@@ -1,15 +1,11 @@
 package request
 
-import (
-	_ "github.com/go-playground/validator/v10"
-)
-
 type PaginationRequest struct {
-	Page        int    `url:"page" binding:"required"`
-	PageSize    int    `url:"page_size" binding:"required"`
-	SearchField string `url:"search_field"`
-	SearchValue string `url:"search_value"`
-	SearchAll   string `url:"search_all"`
-	OrderBy     string `url:"order_by"`
-	Sort        string `url:"sort"`
+	Page        int    `form:"page" binding:"required"`
+	PageSize    int    `form:"page_size" binding:"required"`
+	SearchField string `form:"search_field"`
+	SearchValue string `form:"search_value"`
+	SearchAll   string `form:"search_all"`
+	OrderBy     string `form:"order_by"`
+	Sort        string `form:"sort"`
 }

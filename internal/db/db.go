@@ -29,9 +29,6 @@ func (d *GormDB) ExecWithTimeoutVal(ctx context.Context, fn func(tx *gorm.DB) *g
 }
 
 func NewGorm(addr string, logger *zap.Logger) (*GormDB, error) {
-	// Use your existing DSN (Data Source Name) / connection string
-	// Example DSN: "host=localhost user=user password=pass dbname=ecommerce-db port=5432 sslmode=disable"
-
 	db, err := gorm.Open(postgres.Open(addr), &gorm.Config{})
 
 	if err != nil {

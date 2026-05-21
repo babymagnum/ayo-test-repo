@@ -1,9 +1,6 @@
 package utils
 
 import (
-	"encoding/json"
-	"fmt"
-	"os"
 	"reflect"
 )
 
@@ -37,8 +34,18 @@ func FilterSlice[T any](items []T, filterFunc func(T) bool) []T {
 	return result
 }
 
+func FindFirst[T any](items []T, predicate func(T) bool) (T, bool) {
+	var zeroValue T
+	
+	for _, item := range items {
+		if predicate(item) {
+			return item, true
+		}
+	}
+	return zeroValue, false
+}
+
 func MapSlice[T any, R any](source []T, transformer func(T) R) []R {
-	// 1. Fail Fast: Handle nil or empty input gracefully
 	if source == nil {
 		return nil
 	}
@@ -46,62 +53,11 @@ func MapSlice[T any, R any](source []T, transformer func(T) R) []R {
 		return []R{}
 	}
 
-	// 2. Initialize the result slice with the correct capacity
 	result := make([]R, len(source))
 
-	// 3. Loop and transform
 	for i, item := range source {
 		result[i] = transformer(item)
 	}
 
 	return result
-}
-
-// func LogMethod[T any](logger *zap.Logger, ctx context.Context, req T) {
-// 	cid, _ := ctx.Value(interceptor.CidKey{}).(string)
-
-// 	logger.Info("Login called",
-// 		zap.String("cid", cid),
-// 		zap.Any("request", req),
-// 	)
-// }
-
-// LoadJsonData loads JSON data from a file into the provided destination.
-func LoadJsonData[T any](filePath string, data *T) error {
-	file, err := os.Open(filePath)
-	if err != nil {
-		return fmt.Errorf("error opening file: %w", err)
-	}
-	defer file.Close()
-
-	jsonParser := json.NewDecoder(file)
-
-	if err := jsonParser.Decode(data); err != nil {
-		return fmt.Errorf("error parsing JSON: %w", err)
-	}
-
-	fmt.Println("Successfully loaded data from", filePath)
-	return nil
-}
-
-// SaveToJson saves a given data structure to a JSON file.
-func SaveToJson[T any](filePath string, data T) error {
-	jsonData, err := json.MarshalIndent(data, "", "  ")
-	if err != nil {
-		return fmt.Errorf("error marshalling JSON: %w", err)
-	}
-
-	file, err := os.Create(filePath)
-	if err != nil {
-		return fmt.Errorf("error creating file: %w", err)
-	}
-	defer file.Close()
-
-	_, err = file.Write(jsonData)
-	if err != nil {
-		return fmt.Errorf("error writing to file: %w", err)
-	}
-
-	fmt.Println("Successfully saved data to", filePath)
-	return nil
 }
